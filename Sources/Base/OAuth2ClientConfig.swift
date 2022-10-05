@@ -14,6 +14,9 @@ Client configuration object that holds on to client-server specific configuratio
 */
 open class OAuth2ClientConfig {
 	
+	/// The keychain service name.
+	public final var keychainServiceName: String?
+	
 	/// The client id.
 	public final var clientId: String?
 	
@@ -154,6 +157,10 @@ open class OAuth2ClientConfig {
 		
 		if let usePKCE = settings["use_pkce"] as? Bool {
 			useProofKeyForCodeExchange = usePKCE
+		}
+		
+		if let serviceName = settings["keychain_service_name"] as? String {
+			keychainServiceName = serviceName
 		}
 		
 	}

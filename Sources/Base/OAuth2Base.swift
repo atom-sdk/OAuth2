@@ -121,6 +121,12 @@ open class OAuth2Base: OAuth2Securable {
 		set { clientConfig.customParameters = newValue }
 	}
 	
+	/// The keychain service name.
+	open var serviceName: String? {
+		get { return clientConfig.keychainServiceName }
+		set { clientConfig.keychainServiceName = newValue }
+	}
+	
 	
 	/// This closure is internally used with `authorize(params:callback:)` and only exposed for subclassing reason, do not mess with it!
 	public final var didAuthorizeOrFail: ((_ parameters: OAuth2JSON?, _ error: OAuth2Error?) -> Void)?
@@ -190,6 +196,9 @@ open class OAuth2Base: OAuth2Securable {
 	
 	/** Overrides base implementation to return the authorize URL. */
 	override open func keychainServiceName() -> String {
+		if let serviceName = serviceName {
+			return serviceName
+		}
 		return authURL.description
 	}
 	

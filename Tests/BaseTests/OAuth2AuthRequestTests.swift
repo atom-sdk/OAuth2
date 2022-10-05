@@ -123,7 +123,7 @@ class OAuth2AuthRequestTests: XCTestCase {
 	}
 	
 	func testRequests() {
-		let settings = ["client_id": "id", "client_secret": "secret"]
+		let settings = ["client_id": "id", "client_secret": "secret", "keychain_service_name":"POOO"]
 		let oauth = OAuth2(settings: settings)
 		let reqH = OAuth2AuthRequest(url: URL(string: "https://auth.io")!)
 		do {
