@@ -26,6 +26,9 @@ open class OAuth2ClientConfig {
 	/// The URL to authorize against.
 	public final let authorizeURL: URL
 	
+    /// The URL to authorize against.
+    public final let logoutURL: URL
+    
 	/// The URL where we can exchange a code for a token.
 	public final var tokenURL: URL?
 
@@ -110,7 +113,15 @@ open class OAuth2ClientConfig {
 			aURL = URL(string: auth)
 		}
 		authorizeURL = aURL ?? URL(string: "https://localhost/p2.OAuth2.defaultAuthorizeURI")!
-		
+        
+        // logout URL
+        var aLogoutURL: URL?
+
+        if let logoutauth = settings["logout_uri"] as? String {
+            aLogoutURL = URL(string: logoutauth)
+        }
+        logoutURL = aLogoutURL ?? URL(string: "https://localhost/p2.OAuth2.defaultAuthorizeURI")!
+        
 		// token, registration and logo URLs
 		if let token = settings["token_uri"] as? String {
 			tokenURL = URL(string: token)
