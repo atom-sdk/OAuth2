@@ -229,7 +229,8 @@ public class OAuth2WebViewController: NSViewController, WKNavigationDelegate, NS
 	
 	public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
 		let request = navigationAction.request
-		
+		oauth?.logger?.debug("OAuth2", msg: "request: \(String(describing: request.url))")
+
 		guard let onIntercept = onIntercept else {
 			decisionHandler(.allow)
 			return

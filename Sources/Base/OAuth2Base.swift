@@ -268,6 +268,16 @@ open class OAuth2Base: OAuth2Securable {
 			self.afterAuthorizeOrFail?(parameters, nil)
 		}
 	}
+    
+    public final func didLogout() {
+        
+        callOnMainThread() {
+            self.didAuthorizeOrFail?(nil, nil)
+            self.didAuthorizeOrFail = nil
+            self.internalAfterAuthorizeOrFail?(false, nil)
+            self.afterAuthorizeOrFail?(nil, nil)
+        }
+    }
 	
 	/**
 	Internally used on error, calls the callbacks on the main thread with the appropriate error message.
