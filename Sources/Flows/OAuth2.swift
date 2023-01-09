@@ -165,7 +165,7 @@ open class OAuth2: OAuth2Base {
             logger?.debug("OAuth2", msg: "Opening logout URL in system browser: \(url)")
             
             didAuthorizeOrFail = callback
-            
+			authConfig.authorizeContext = context
             try authorizer.authorizeEmbedded(with: authConfig, at: url.url)
 
         } catch {
