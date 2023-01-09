@@ -154,6 +154,26 @@ open class OAuth2: OAuth2Base {
 		authorize(params: params, callback: callback)
 	}
 	
+	open func logoutEmbedded(from context: AnyObject, params: OAuth2StringDict? = nil, callback: @escaping ((_ authParameters: OAuth2JSON?, _ error: OAuth2Error?) -> Void)) {
+        
+        do {
+            guard let redirect = (redirect ?? clientConfig.redirect) else {
+                throw OAuth2Error.noRedirectURL
+            }
+            
+            let url = try logoutRequest(withRedirect: redirect, scope: "", params: params)
+            logger?.debug("OAuth2", msg: "Opening logout URL in system browser: \(url)")
+            
+            didAuthorizeOrFail = callback
+			authConfig.authorizeContext = context
+            try authorizer.authorizeEmbedded(with: authConfig, at: url.url)
+
+        } catch {
+            
+        }
+        
+	}
+	
 	/**
 	If the instance has an accessToken, checks if its expiry time has not yet passed. If we don't have an expiry date we assume the token
 	is still valid.
@@ -297,6 +317,38 @@ open class OAuth2: OAuth2Base {
 		return req
 	}
 	
+    
+    func logoutRequest(withRedirect redirect: String, scope: String?, params: OAuth2StringDict?) throws -> OAuth2AuthRequest {
+        let clientId = clientConfig.clientId
+        if type(of: self).clientIdMandatory && (nil == clientId || clientId!.isEmpty) {
+            throw OAuth2Error.noClientId
+        }
+        
+        let req = OAuth2AuthRequest(url: clientConfig.logoutURL, method: .GET)
+        req.params["redirect_uri"] = redirect
+        req.params["state"] = context.state
+        if let clientId = clientId {
+            req.params["client_id"] = clientId
+        }
+        if let responseType = type(of: self).responseType {
+            req.params["response_type"] = responseType
+        }
+        if let scope = scope ?? clientConfig.scope {
+            req.params["scope"] = scope
+        }
+        if clientConfig.safariCancelWorkaround {
+            req.params["swa"] = "\(Date.timeIntervalSinceReferenceDate)" // Safari issue workaround
+        }
+        if clientConfig.useProofKeyForCodeExchange {
+            context.generateCodeVerifier()
+            req.params["code_challenge"] = context.codeChallenge()
+            req.params["code_challenge_method"] = context.codeChallengeMethod
+        }
+        req.add(params: params)
+        
+        return req
+    }
+    
 	/**
 	Most convenient method if you want the authorize URL to be created as defined in your settings dictionary.
 	
@@ -378,6 +430,9 @@ open class OAuth2: OAuth2Base {
 						throw OAuth2Error.generic("Failed with status \(response.response.statusCode)")
 					}
 					self.logger?.debug("OAuth2", msg: "Did use refresh token for access token [\(nil != self.clientConfig.accessToken)]")
+					if (self.useKeychain) {
+						self.storeTokensToKeychain()
+					}
 					callback(json, nil)
 				}
 				catch let error {
