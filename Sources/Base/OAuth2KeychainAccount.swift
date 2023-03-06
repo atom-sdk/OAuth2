@@ -60,7 +60,12 @@ struct OAuth2KeychainAccount: KeychainGenericPasswordType {
 		data = inData
 	}
 	
-	init(oauth2: OAuth2Securable, account: String, data inData: [String: Any] = [:],_serviceName:String = "") {
+	/**
+	Designated initializer.
+	- parameter _serviceName:  The OAuth2 instance Keychain Entry Name
+	*/
+	
+	init(oauth2: OAuth2Securable, account: String, data inData: [String: Any] = [:],_serviceName:String) {
 		serviceName = _serviceName
 		accountName = account
 		accessMode = String(oauth2.keychainAccessMode)
