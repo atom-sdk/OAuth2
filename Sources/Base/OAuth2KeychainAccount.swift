@@ -59,6 +59,15 @@ struct OAuth2KeychainAccount: KeychainGenericPasswordType {
 		accessGroup = oauth2.keychainAccessGroup
 		data = inData
 	}
+	
+	init(oauth2: OAuth2Securable, account: String, data inData: [String: Any] = [:],_serviceName:String = "") {
+		serviceName = _serviceName
+		accountName = account
+		accessMode = String(oauth2.keychainAccessMode)
+		accessGroup = oauth2.keychainAccessGroup
+		data = inData
+	}
+		
 }
 
 

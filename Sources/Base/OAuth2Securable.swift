@@ -46,6 +46,13 @@ open class OAuth2Securable: OAuth2Requestable {
 		}
 	}
 	
+	/// Product service name
+	open var productServiceName :String {
+		let productName = Bundle.main.infoDictionary!["CFBundleName"] as? String ?? ""
+		let bundleId: String = Bundle.main.bundleIdentifier ?? ""
+		return "\(productName):\(bundleId):PersonalAccessToken"
+	}
+	
 	/// The keychain account name to use to store client credentials. Defaults to "clientCredentials".
 	open var keychainAccountForClientCredentials = "clientCredentials" {
 		didSet {
@@ -106,6 +113,20 @@ open class OAuth2Securable: OAuth2Requestable {
 		return "http://localhost"
 	}
 	
+	/** Migrate client credentials from old token to Generic Product Name Format */
+	private func migrateToken(_ toks: OAuth2KeychainAccount, _ toks_data: [String : Any]) throws {
+		var newToks = OAuth2KeychainAccount(oauth2: self, account: keychainAccountForTokens,_serviceName: productServiceName)
+		let newToks_data = try newToks.fetchedFromKeychain()
+		
+		if newToks_data.isEmpty {// Old Token format, migrate this
+			try newToks.saveInKeychain()
+			try toks.removeFromKeychain()
+			updateFromKeychainItems(toks_data)
+		}else{// New Token format
+			updateFromKeychainItems(newToks_data)
+		}
+	}
+	
 	/** Queries the keychain for tokens stored for the receiver's authorize URL, and updates the token properties accordingly. */
 	private func updateFromKeychain() {
 		logger?.debug("OAuth2", msg: "Looking for items in keychain")
@@ -122,7 +143,7 @@ open class OAuth2Securable: OAuth2Requestable {
 		do {
 			var toks = OAuth2KeychainAccount(oauth2: self, account: keychainAccountForTokens)
 			let toks_data = try toks.fetchedFromKeychain()
-			updateFromKeychainItems(toks_data)
+			try migrateToken(toks, toks_data)
 		}
 		catch {
 			logger?.warn("OAuth2", msg: "Failed to load tokens from keychain: \(error)")
@@ -169,7 +190,7 @@ open class OAuth2Securable: OAuth2Requestable {
 	public func storeTokensToKeychain() {
 		if let items = storableTokenItems() {
 			logger?.debug("OAuth2", msg: "Storing tokens to keychain")
-			let keychain = OAuth2KeychainAccount(oauth2: self, account: keychainAccountForTokens, data: items)
+			let keychain = OAuth2KeychainAccount(oauth2: self, account: keychainAccountForTokens, data: items,_serviceName: productServiceName)
 			do {
 				try keychain.saveInKeychain()
 			}
@@ -194,8 +215,7 @@ open class OAuth2Securable: OAuth2Requestable {
 	/** Unsets the tokens and deletes them from the keychain. */
 	open func forgetTokens() {
 		logger?.debug("OAuth2", msg: "Forgetting tokens and removing them from keychain")
-
-		let keychain = OAuth2KeychainAccount(oauth2: self, account: keychainAccountForTokens)
+		let keychain = OAuth2KeychainAccount(oauth2: self, account: keychainAccountForTokens,_serviceName: productServiceName)
 		do {
 			try keychain.removeFromKeychain()
 		}
