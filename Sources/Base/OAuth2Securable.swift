@@ -114,11 +114,15 @@ open class OAuth2Securable: OAuth2Requestable {
 	}
 	
 	/** Migrate client credentials from old token to Generic Product Name Format */
-	private func migrateToken(_ toks: OAuth2KeychainAccount, _ toks_data: [String : Any]) throws {
+	private func migrateToken() throws {
+		var toks = OAuth2KeychainAccount(oauth2: self, account: keychainAccountForTokens)
+		let toks_data = try toks.fetchedFromKeychain()
+		
 		var newToks = OAuth2KeychainAccount(oauth2: self, account: keychainAccountForTokens,_serviceName: productServiceName)
 		let newToks_data = try newToks.fetchedFromKeychain()
 		
 		if newToks_data.isEmpty {// Old Token format, migrate this
+			newToks.data = toks_data
 			try newToks.saveInKeychain()
 			try toks.removeFromKeychain()
 			updateFromKeychainItems(toks_data)
@@ -141,9 +145,7 @@ open class OAuth2Securable: OAuth2Requestable {
 		}
 		
 		do {
-			var toks = OAuth2KeychainAccount(oauth2: self, account: keychainAccountForTokens)
-			let toks_data = try toks.fetchedFromKeychain()
-			try migrateToken(toks, toks_data)
+			try migrateToken()
 		}
 		catch {
 			logger?.warn("OAuth2", msg: "Failed to load tokens from keychain: \(error)")
