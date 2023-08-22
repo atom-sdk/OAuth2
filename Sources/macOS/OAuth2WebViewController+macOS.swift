@@ -236,6 +236,12 @@ public class OAuth2WebViewController: NSViewController, WKNavigationDelegate, NS
 			return
 		}
 		
+		if let oauth = oauth {
+			if let newClientId = request.url?.valueOf("client_id"), oauth.clientConfig.hasClientIdChanged(newClientId) {
+				oauth.clientConfig.updateLogoutUrl(newClientId: newClientId)
+			}
+		}
+		
 		// we compare the scheme and host first, then check the path (if there is any). Not sure if a simple string comparison
 		// would work as there may be URL parameters attached
 		if let url = request.url, url.scheme == interceptComponents?.scheme && url.host == interceptComponents?.host {
