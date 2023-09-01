@@ -65,7 +65,7 @@ open class OAuth2CodeGrant: OAuth2 {
 		let req = OAuth2AuthRequest(url: (clientConfig.tokenURL ?? clientConfig.authorizeURL))
 		req.params["code"] = code
 		req.params["grant_type"] = type(of: self).grantType
-		req.params["redirect_uri"] = redirect
+		req.params["redirect_uri"] = clientConfig.redirect
 		req.params["client_id"] = clientId
 		if clientConfig.useProofKeyForCodeExchange {
 			req.params["code_verifier"] = context.codeVerifier
@@ -81,6 +81,7 @@ open class OAuth2CodeGrant: OAuth2 {
 		do {
             if redirect.absoluteString.contains("code") {
                 let code = try validateRedirectURL(redirect)
+				updateClientConfig(redirect)
                 exchangeCodeForToken(code)
             }else {
                 self.didLogout()
@@ -88,6 +89,15 @@ open class OAuth2CodeGrant: OAuth2 {
 		}
 		catch let error {
 			didFail(with: error.asOAuth2Error)
+		}
+	}
+	
+	func updateClientConfig(_ redirect: URL) {
+		if let newClientId = redirect.valueOf("app_id"), clientConfig.hasClientIdChanged(newClientId) {
+			if let updatedRedirectUri = context.redirectURL {
+				clientConfig.redirect = updatedRedirectUri.appending("?app_id=\(newClientId)")
+			}
+			clientConfig.updateLogoutUrl(newClientId: newClientId)
 		}
 	}
 	

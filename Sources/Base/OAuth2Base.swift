@@ -218,6 +218,10 @@ open class OAuth2Base: OAuth2Securable {
 		clientConfig.forgetTokens()
 	}
 	
+	open func forgetClientCredentials() {
+		clientConfig.forgetCredentials()
+	}
+	
 	
 	// MARK: - Request Signing
 	

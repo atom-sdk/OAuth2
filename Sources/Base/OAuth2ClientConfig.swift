@@ -27,7 +27,7 @@ open class OAuth2ClientConfig {
 	public final let authorizeURL: URL
 	
     /// The URL to authorize against.
-    public final let logoutURL: URL
+    public final var logoutURL: URL
     
 	/// The URL where we can exchange a code for a token.
 	public final var tokenURL: URL?
@@ -99,6 +99,9 @@ open class OAuth2ClientConfig {
 	///
 	open var useProofKeyForCodeExchange = false
 
+	/// Handle to the OAuth2 instance in play, only used for debug logging at this time.
+	var oauth: OAuth2Base?
+	
 	/**
 	Initializer to initialize properties from a settings dictionary.
 	*/
@@ -297,6 +300,45 @@ open class OAuth2ClientConfig {
 		accessTokenExpiry = nil
 		refreshToken = nil
 		idToken = nil
+	}
+	
+	func hasClientIdChanged(_ newClientId: String) -> Bool {
+		if newClientId != clientId && validUuid(newClientId) {
+			updateClientId(newClientId)
+			return true
+		}
+		return false
+	}
+	
+	func updateLogoutUrl(newClientId: String) {
+		if var urlComponents = URLComponents(string: logoutURL.absoluteString) {
+			// Find the query item you want to update
+			if let queryItemIndex = urlComponents.queryItems?.firstIndex(where: { $0.name == "client_id" }) {
+				
+				// Update the value of the query item
+				urlComponents.queryItems?[queryItemIndex] = URLQueryItem(name: "client_id", value: newClientId)
+				
+				// Rebuild the URL with the updated query parameter
+				if let updatedURL = urlComponents.url {
+					logoutURL = updatedURL
+				} else {
+					oauth?.logger?.debug("OAuth2", msg: "Failed to update the logout url.")
+				}
+			} else {
+				oauth?.logger?.debug("OAuth2", msg: "client_id parameter not found in logout url.")
+			}
+		} else {
+			oauth?.logger?.debug("OAuth2", msg: "Failed to get url components of logout url.")
+		}
+	}
+	
+	private func validUuid(_ uuidString: String) -> Bool {
+		return UUID(uuidString: uuidString) != nil
+	}
+	
+	private func updateClientId(_ newClientId: String) {
+		clientId = newClientId
+		oauth?.logger?.debug("OAuth2", msg: "client_id has changed")
 	}
 }
 
