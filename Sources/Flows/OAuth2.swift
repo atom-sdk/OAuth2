@@ -174,6 +174,26 @@ open class OAuth2: OAuth2Base {
         
 	}
 	
+	open func switchWorkspaceEmbedded(from context: AnyObject, params: OAuth2StringDict? = nil, callback: @escaping ((_ authParameters: OAuth2JSON?, _ error: OAuth2Error?) -> Void)) {
+		
+		do {
+			guard let redirect = (redirect ?? clientConfig.redirect) else {
+				throw OAuth2Error.noRedirectURL
+			}
+			
+			let url = try authorizeURL(params: params)
+			logger?.debug("OAuth2", msg: "Opening switch workspace URL in system browser: \(url)")
+			
+			didAuthorizeOrFail = callback
+			authConfig.authorizeContext = context
+			try authorizer.authorizeEmbedded(with: authConfig, at: url)
+
+		} catch {
+			
+		}
+		
+	}
+	
 	/**
 	If the instance has an accessToken, checks if its expiry time has not yet passed. If we don't have an expiry date we assume the token
 	is still valid.

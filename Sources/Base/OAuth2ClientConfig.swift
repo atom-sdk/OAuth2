@@ -49,6 +49,9 @@ open class OAuth2ClientConfig {
 	
 	/// The receiver's access token.
 	open var accessToken: String?
+	
+	/// The receiver's current workspace token.
+	open var workspace: String?
 
 	/// The receiver's id token.  Used by Google + and AWS Cognito
 	open var idToken: String?
@@ -336,9 +339,14 @@ open class OAuth2ClientConfig {
 		return UUID(uuidString: uuidString) != nil
 	}
 	
-	private func updateClientId(_ newClientId: String) {
+	public func updateClientId(_ newClientId: String) {
 		clientId = newClientId
 		oauth?.logger?.debug("OAuth2", msg: "client_id has changed")
+	}
+	
+	public func setWorkspace(_ workspaceName: String) {
+		workspace = workspaceName
+		oauth?.logger?.debug("OAuth2", msg: "workspace has changed")
 	}
 }
 

@@ -82,6 +82,11 @@ open class OAuth2Base: OAuth2Securable {
 		set { clientConfig.redirect = newValue }
 	}
 	
+	public final var workspace: String? {
+		get { return clientConfig.workspace }
+		set { clientConfig.workspace = newValue }
+	}
+	
 	/// Context for the current auth dance.
 	open var context = OAuth2ContextStore()
 	
