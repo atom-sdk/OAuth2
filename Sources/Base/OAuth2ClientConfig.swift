@@ -101,7 +101,7 @@ open class OAuth2ClientConfig {
 	/// See https://tools.ietf.org/html/rfc7636
 	///
 	open var useProofKeyForCodeExchange = false
-
+  
 	/// Handle to the OAuth2 instance in play, only used for debug logging at this time.
 	var oauth: OAuth2Base?
 	

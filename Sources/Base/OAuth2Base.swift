@@ -227,7 +227,6 @@ open class OAuth2Base: OAuth2Securable {
 		clientConfig.forgetCredentials()
 	}
 	
-	
 	// MARK: - Request Signing
 	
 	/**

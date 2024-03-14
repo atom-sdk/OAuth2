@@ -130,4 +130,3 @@ extension URL {
 		return url.queryItems?.first(where: { $0.name == queryParameterName })?.value
 	}
 }
-
