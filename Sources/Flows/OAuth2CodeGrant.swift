@@ -93,9 +93,15 @@ open class OAuth2CodeGrant: OAuth2 {
 	}
 	
 	func updateClientConfig(_ redirect: URL) {
-		if let newClientId = redirect.valueOf("app_id"), clientConfig.hasClientIdChanged(newClientId) {
+		if let newClientId = redirect.valueOf("app_id") {//}, clientConfig.hasClientIdChanged(newClientId) {
+			clientConfig.updateClientId(newClientId)
 			if let updatedRedirectUri = context.redirectURL {
-				clientConfig.redirect = updatedRedirectUri.appending("?app_id=\(newClientId)")
+				if let workspace = redirect.valueOf("workspace") {
+					clientConfig.setWorkspace(workspace)
+					clientConfig.redirect = updatedRedirectUri.appending("?app_id=\(newClientId)&workspace=\(workspace)")
+				} else {
+					clientConfig.redirect = updatedRedirectUri.appending("?app_id=\(newClientId)")
+				}
 			}
 			clientConfig.updateLogoutUrl(newClientId: newClientId)
 		}
