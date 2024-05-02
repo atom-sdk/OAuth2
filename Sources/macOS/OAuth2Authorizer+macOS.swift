@@ -178,7 +178,7 @@ open class OAuth2Authorizer: OAuth2AuthorizerUI {
 	*/
 	@available(macOS 10.10, *)
 	open func windowController(forViewController controller: OAuth2WebViewController, with config: OAuth2AuthConfig) -> NSWindowController {
-		let rect = NSMakeRect(0, 0, OAuth2WebViewController.webViewWindowWidth, OAuth2WebViewController.webViewWindowHeight)
+		let rect = NSMakeRect(0, 0, oauth2.authConfig.ui.webViewWindowWidth, oauth2.authConfig.ui.webViewWindowHeight)
 		let window = NSWindow(contentRect: rect, styleMask: [.titled, .closable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
 		window.backgroundColor = NSColor.white
 		window.isMovableByWindowBackground = true
