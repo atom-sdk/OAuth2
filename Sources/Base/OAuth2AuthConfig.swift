@@ -37,6 +37,12 @@ public struct OAuth2AuthConfig {
 		/// By assigning your own UIBarButtonItem (!) you can override the back button that is shown in the iOS embedded web view (does NOT apply to `SFSafariViewController`).
 		public var backButton: AnyObject? = nil
 		
+		/// Assigning your own webViewWindowWidth
+		public var webViewWindowWidth: Double = 600
+		
+		/// Assigning your own webViewWindowHeight
+		public var webViewWindowHeight: Double = 500
+		
 		/// If true it makes the login cancellable, otherwise the cancel button is not shown in the embedded web view.
 		public var showCancelButton = true
 		

@@ -118,7 +118,10 @@ public class OAuth2WebViewController: NSViewController, WKNavigationDelegate, NS
 	
 	/** Override to fully load the view; adds a `WKWebView`, optionally a dismiss button, and shows the loading indicator. */
 	override public func loadView() {
-		view = NSView(frame: NSMakeRect(0, 0, OAuth2WebViewController.webViewWindowWidth, OAuth2WebViewController.webViewWindowHeight))
+		view = NSView(frame: NSMakeRect(
+			0, 0,
+			oauth?.authConfig.ui.webViewWindowWidth ?? OAuth2WebViewController.webViewWindowWidth,
+			oauth?.authConfig.ui.webViewWindowHeight ?? OAuth2WebViewController.webViewWindowHeight))
 		view.translatesAutoresizingMaskIntoConstraints = false
 		
 		let web = WKWebView(frame: view.bounds, configuration: WKWebViewConfiguration())

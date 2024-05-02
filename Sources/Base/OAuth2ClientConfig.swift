@@ -239,6 +239,10 @@ open class OAuth2ClientConfig {
 		if let idtoken = idToken, !idtoken.isEmpty {
 			items["idToken"] = idtoken
 		}
+		
+		if let workspace = workspace, !workspace.isEmpty {
+			items["workspace"] = workspace
+		}
 		return items
 	}
 	
@@ -288,6 +292,11 @@ open class OAuth2ClientConfig {
 			messages.append("Found id token")
 			idToken = idtoken
 		}
+		if let workspace = items["workspace"] as? String, !workspace.isEmpty {
+			messages.append("Found workspace")
+			self.workspace = workspace
+		}
+		
 		return messages
 	}
 	
